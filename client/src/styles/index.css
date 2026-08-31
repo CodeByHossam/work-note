@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat+Alternates:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap');
+
+
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #111827;
+  line-height: 1.5;
+}
+
+/* Headings */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+/* Brand */
+
+.logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+}
+
+/* Buttons & navigation */
+
+button,
+nav,
+input,
+textarea,
+select {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Code / technical information */
+
+code,
+pre,
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}

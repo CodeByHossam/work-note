@@ -1,0 +1,93 @@
+.notes-section {
+  width: 100%;
+}
+
+/* List Header */
+
+.notes-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 25px;
+}
+
+.notes-list-header h2 {
+  margin: 0 0 5px;
+
+  color: #111827;
+  font-size: 1.4rem;
+}
+
+.notes-list-header p {
+  margin: 0;
+
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Add Task Button */
+
+.add-task-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #4ade80;
+  color: #111827;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.add-task-btn:hover {
+  background: #22c55e;
+  transform: translateY(-1px);
+}
+
+.add-task-btn:active {
+  transform: translateY(0);
+}
+
+/* Cards Grid */
+
+.notes-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/* Tablet */
+
+@media (max-width: 800px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 500px) {
+  .notes-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
