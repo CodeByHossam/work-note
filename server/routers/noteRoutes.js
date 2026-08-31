@@ -1,4 +1,6 @@
 const express = require("express");
+const auth= require("../middlewares/auth");
+
 
 const {
   getAllNotes,
@@ -11,7 +13,7 @@ const {
 const router = express.Router();
 
 // GET all notes
-router.get("/", getAllNotes);
+router.get("/",auth, getAllNotes);
 
 // GET one note
 router.get("/:id", getNoteById);

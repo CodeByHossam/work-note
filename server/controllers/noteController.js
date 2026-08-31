@@ -1,102 +1,91 @@
 const Note = require("../models/Note");
-
+const asyncHandler = require("express-async-handler");
+const User = require("../models/User");
 // GET all notes
-const getAllNotes = async (req, res) => {
-  try {
-    const notes = await Note.find();
+const getAllNotes = asyncHandler(async (req, res) => {
+const notes = await Note.find();
 
-    res.status(200).json({"isSucess":true,'data':notes,"meta":req.baseUrl});
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to get notes",
-      error: error.message,
-    });
-  }
-};
+res.status(200).json({
+isSuccess: true,
+data: notes,
+message:
+notes.length === 0
+? "No notes found"
+: "All notes retrieved successfully",
+});
+});
 
 // GET one note
-const getNoteById = async (req, res) => {
-  try {
-    const note = await Note.findById(req.params.id);
+const getNoteById = asyncHandler(async (req, res) => {
+const note = await Note.findById(req.params.id);
 
-    if (!note) {
-      return res.status(404).json({
-        message: "Note not found",
-      });
-    }
+if (!note) {
+return res.status(404).json({
+isSuccess: false,
+message: "Note not found",
+});
+}
 
-    res.status(200).json(note);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to get note",
-      error: error.message,
-    });
-  }
-};
+res.status(200).json({
+isSuccess: true,
+data: note,
+message: "Note retrieved successfully",
+});
+});
 
 // CREATE note
-const createNote = async (req, res) => {
-  try {
-    const note = await Note.create(req.body);
+const createNote = asyncHandler(async (req, res) => {
+const note = await Note.create(req.body);
 
-    res.status(201).json(note);
-  } catch (error) {
-    res.status(400).json({
-      message: "Failed to create note",
-      error: error.message,
-    });
-  }
-};
+res.status(201).json({
+isSuccess: true,
+data: note,
+message: "Note created successfully",
+});
+});
 
 // UPDATE note
-const updateNote = async (req, res) => {
-  try {
-    const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+const updateNote = asyncHandler(async (req, res) => {
+const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
+new: true,
+runValidators: true,
+});
 
-    if (!note) {
-      return res.status(404).json({
-        message: "Note not found",
-      });
-    }
+if (!note) {
+return res.status(404).json({
+isSuccess: false,
+message: "Note not found",
+});
+}
 
-    res.status(200).json(note);
-  } catch (error) {
-    res.status(400).json({
-      message: "Failed to update note",
-      error: error.message,
-    });
-  }
-};
+res.status(200).json({
+isSuccess: true,
+data: note,
+message: "Note updated successfully",
+});
+});
 
 // DELETE note
-const deleteNote = async (req, res) => {
-  try {
-    const note = await Note.findByIdAndDelete(req.params.id);
+const deleteNote = asyncHandler(async (req, res) => {
+const note = await Note.findByIdAndDelete(req.params.id);
 
-    if (!note) {
-      return res.status(404).json({
-        message: "Note not found",
-      });
-    }
+if (!note) {
+return res.status(404).json({
+isSuccess: false,
+message: "Note not found",
+});
+}
 
-    res.status(200).json({
-      message: "Note deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete note",
-      error: error.message,
-    });
-  }
-};
+res.status(200).json({
+isSuccess: true,
+message: "Note deleted successfully",
+});
+});
 
 module.exports = {
-  getAllNotes,
-  getNoteById,
-  createNote,
-  updateNote,
-  deleteNote,
+getAllNotes,
+getNoteById,
+createNote,
+updateNote,
+deleteNote,
 };
