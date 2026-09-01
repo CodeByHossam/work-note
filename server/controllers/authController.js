@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
+// @des: Register a new user
+// @route: POST /api/users
+// @access: Public
 const register = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
   if (!name || !email || !password) {
@@ -35,6 +38,10 @@ const register = asyncHandler(async (req, res) => {
     throw new Error("Invalid user data");
   }
 });
+
+// @des: Login a user
+// @route: POST /api/users/login
+// @access: Public
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -50,13 +57,12 @@ const login = asyncHandler(async (req, res) => {
       { _id: user._id, role: user.role },
       process.env.JWT_SECRET,
       {
-        expiresIn: "30s",
+        expiresIn: "90s",
       },
     );
     res.status(200).json({
       _id: user._id,
       name: user.name,
-      email: user.email,
       role: user.role,
       token,
     });

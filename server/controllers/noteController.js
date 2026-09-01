@@ -1,91 +1,109 @@
 const Note = require("../models/Note");
 const asyncHandler = require("express-async-handler");
 const User = require("../models/User");
-// GET all notes
+
+// @description: Get all notes
+// @route: GET /api/notes
+// @access: Private
 const getAllNotes = asyncHandler(async (req, res) => {
-const notes = await Note.find();
+  const notes = await Note.find();
 
-res.status(200).json({
-isSuccess: true,
-data: notes,
-message:
-notes.length === 0
-? "No notes found"
-: "All notes retrieved successfully",
-});
+  res.status(200).json({
+    isSuccess: true,
+    data: notes,
+    message:
+      notes.length === 0
+        ? "No notes found"
+        : "All notes retrieved successfully",
+  });
 });
 
-// GET one note
+// @description: Get note by ID
+// @route: GET /api/notes/:id
+// @access: Private
 const getNoteById = asyncHandler(async (req, res) => {
-const note = await Note.findById(req.params.id);
+  const note = await Note.findById(req.params.id);
 
-if (!note) {
-return res.status(404).json({
-isSuccess: false,
-message: "Note not found",
-});
-}
+  if (!note) {
+    return res.status(404).json({
+      isSuccess: false,
+      message: "Note not found",
+    });
+  }
 
-res.status(200).json({
-isSuccess: true,
-data: note,
-message: "Note retrieved successfully",
-});
+  res.status(200).json({
+    isSuccess: true,
+    data: note,
+    message: "Note retrieved successfully",
+  });
 });
 
-// CREATE note
+// @description: Create new note
+// @route: POST /api/notes
+// @access: Private
 const createNote = asyncHandler(async (req, res) => {
-const note = await Note.create(req.body);
+  const { title, description, assignedTo } = req.body;
 
-res.status(201).json({
-isSuccess: true,
-data: note,
-message: "Note created successfully",
-});
+  const note = await Note.create({
+    title,
+    description,
+    assignedTo,
+    creator: req.user._id,
+  });
+
+  res.status(201).json({
+    isSuccess: true,
+    data: note,
+    message: "Note created successfully",
+  });
 });
 
-// UPDATE note
+// @description: Update note
+// @route: PUT /api/notes/:id
+// @access: Private
 const updateNote = asyncHandler(async (req, res) => {
-const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
-new: true,
-runValidators: true,
+  const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      isSuccess: false,
+      message: "Note not found",
+    });
+  }
+
+  res.status(200).json({
+    isSuccess: true,
+    data: note,
+    message: "Note updated successfully",
+  });
 });
 
-if (!note) {
-return res.status(404).json({
-isSuccess: false,
-message: "Note not found",
-});
-}
-
-res.status(200).json({
-isSuccess: true,
-data: note,
-message: "Note updated successfully",
-});
-});
-
-// DELETE note
+// @description: Delete note
+// @route: DELETE /api/notes/:id
+// @access: Private
 const deleteNote = asyncHandler(async (req, res) => {
-const note = await Note.findByIdAndDelete(req.params.id);
+  const note = await Note.findByIdAndDelete(req.params.id);
 
-if (!note) {
-return res.status(404).json({
-isSuccess: false,
-message: "Note not found",
-});
-}
+  if (!note) {
+    return res.status(404).json({
+      isSuccess: false,
+      message: "Note not found",
+    });
+  }
 
-res.status(200).json({
-isSuccess: true,
-message: "Note deleted successfully",
-});
+  res.status(200).json({
+    isSuccess: true,
+    message: "Note deleted successfully",
+  });
 });
 
 module.exports = {
-getAllNotes,
-getNoteById,
-createNote,
-updateNote,
-deleteNote,
+  getAllNotes,
+  getNoteById,
+  createNote,
+  updateNote,
+  deleteNote,
 };

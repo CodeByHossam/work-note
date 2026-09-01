@@ -1,6 +1,8 @@
 const express = require("express");
-const auth= require("../middlewares/auth");
-
+const auth = require("../middlewares/authMiddelware");
+const { validateCreateNote } = require("../middlewares/validate");
+const authorize  = require("../middlewares/authorizeMiddelware");
+const  allowedRoles  = require("../config/allowedRoles");
 
 const {
   getAllNotes,
@@ -13,13 +15,19 @@ const {
 const router = express.Router();
 
 // GET all notes
-router.get("/",auth, getAllNotes);
+router.get("/", auth, getAllNotes);
 
 // GET one note
 router.get("/:id", getNoteById);
 
 // CREATE note
-router.post("/", createNote);
+router.post(
+  "/",
+  auth,
+  authorize(allowedRoles.admin),
+  validateCreateNote,
+  createNote,
+);
 
 // UPDATE note
 router.patch("/:id", updateNote);
