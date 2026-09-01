@@ -10,6 +10,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const notFoundHandler = require("./middlewares/notFoundHandler");
 const path = require("path");
 //routes
+const userRoutes = require("./routers/userRoutes");
 const noteRoutes = require("./routers/noteRoutes");
 const authRoutes = require("./routers/authRoutes");
 
@@ -22,6 +23,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
 // route use
+app.use("/api/user", userRoutes);
 app.use("/api/note", noteRoutes);
 app.use("/api/auth", authRoutes);
 // test route

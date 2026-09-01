@@ -1,8 +1,11 @@
 const express = require("express");
 const auth = require("../middlewares/authMiddelware");
-const { validateCreateNote } = require("../middlewares/validate");
-const authorize  = require("../middlewares/authorizeMiddelware");
-const  allowedRoles  = require("../config/allowedRoles");
+const {
+  validateCreateNote,
+  validateUpdateNote,
+} = require("../middlewares/validate");
+const authorize = require("../middlewares/authorizeMiddelware");
+const allowedRoles = require("../config/allowedRoles");
 
 const {
   getAllNotes,
@@ -30,7 +33,7 @@ router.post(
 );
 
 // UPDATE note
-router.patch("/:id", updateNote);
+router.patch("/:id", validateUpdateNote, updateNote);
 
 // DELETE note
 router.delete("/:id", deleteNote);

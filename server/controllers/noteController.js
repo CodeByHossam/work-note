@@ -1,26 +1,25 @@
 const Note = require("../models/Note");
-const asyncHandler = require("express-async-handler");
-const User = require("../models/User");
 
-// @description: Get all notes
+const asyncHandler = require("express-async-handler");
+
+// @description: Get all notes accessible by the current user
 // @route: GET /api/notes
 // @access: Private
-const getAllNotes = asyncHandler(async (req, res) => {
-  const notes = await Note.find();
 
+const getAllNotes = asyncHandler(async (req, res) => {
+  // the user role is required not only the user id
+  const notes = await Note.getAccessibleByUser(req.user);
   res.status(200).json({
     isSuccess: true,
     data: notes,
-    message:
-      notes.length === 0
-        ? "No notes found"
-        : "All notes retrieved successfully",
+    message: "Notes retrieved successfully",
   });
 });
 
 // @description: Get note by ID
 // @route: GET /api/notes/:id
 // @access: Private
+
 const getNoteById = asyncHandler(async (req, res) => {
   const note = await Note.findById(req.params.id);
 
@@ -28,6 +27,14 @@ const getNoteById = asyncHandler(async (req, res) => {
     return res.status(404).json({
       isSuccess: false,
       message: "Note not found",
+    });
+  }
+
+  // User must be the creator or assigned user
+  if (!note.isOwner(req.user._id) && !note.isAssignedTo(req.user._id)) {
+    return res.status(403).json({
+      isSuccess: false,
+      message: "You are not authorized to access this note",
     });
   }
 
@@ -41,6 +48,7 @@ const getNoteById = asyncHandler(async (req, res) => {
 // @description: Create new note
 // @route: POST /api/notes
 // @access: Private
+
 const createNote = asyncHandler(async (req, res) => {
   const { title, description, assignedTo } = req.body;
 
@@ -61,11 +69,9 @@ const createNote = asyncHandler(async (req, res) => {
 // @description: Update note
 // @route: PUT /api/notes/:id
 // @access: Private
+
 const updateNote = asyncHandler(async (req, res) => {
-  const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const note = await Note.findById(req.params.id);
 
   if (!note) {
     return res.status(404).json({
@@ -74,9 +80,34 @@ const updateNote = asyncHandler(async (req, res) => {
     });
   }
 
+  // Only the creator can update the note
+  if (!note.isOwner(req.user._id)) {
+    return res.status(403).json({
+      isSuccess: false,
+      message: "You are not authorized to update this note",
+    });
+  }
+
+  const { title, description, assignedTo, state, completed } = req.body;
+
+  const updatedNote = await Note.findByIdAndUpdate(
+    req.params.id,
+    {
+      title: title ?? note.title,
+      description: description ?? note.description,
+      assignedTo: assignedTo ?? note.assignedTo,
+      state: state ?? note.state,
+      completed: completed ?? note.completed,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
   res.status(200).json({
     isSuccess: true,
-    data: note,
+    data: updatedNote,
     message: "Note updated successfully",
   });
 });
@@ -84,8 +115,9 @@ const updateNote = asyncHandler(async (req, res) => {
 // @description: Delete note
 // @route: DELETE /api/notes/:id
 // @access: Private
+
 const deleteNote = asyncHandler(async (req, res) => {
-  const note = await Note.findByIdAndDelete(req.params.id);
+  const note = await Note.findById(req.params.id);
 
   if (!note) {
     return res.status(404).json({
@@ -93,6 +125,16 @@ const deleteNote = asyncHandler(async (req, res) => {
       message: "Note not found",
     });
   }
+
+  // Only the creator can delete the note
+  if (!note.isOwner(req.user._id)) {
+    return res.status(403).json({
+      isSuccess: false,
+      message: "You are not authorized to delete this note",
+    });
+  }
+
+  await Note.findByIdAndDelete(req.params.id);
 
   res.status(200).json({
     isSuccess: true,
