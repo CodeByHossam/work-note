@@ -9,6 +9,7 @@ const authorize = (allowedRoles) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
+      console.log("User role: ", req.user.role);
       return res.status(403).json({
         isSuccess: false,
         message: "You are not authorized to perform this action",

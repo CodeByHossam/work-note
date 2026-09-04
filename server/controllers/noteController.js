@@ -158,7 +158,8 @@ const deleteNote = asyncHandler(async (req, res) => {
 
 // get all notes assined to a user
 // Get notes assigned to a user
-const getAssignedNotes = asyncHandler(async (req, res) => {
+// FIXME:assined to cant get his notes
+const getAssignedNotes = asyncHandler(async (req, res, next) => {
   try {
     const userId = req.body.userId;
 

@@ -1,7 +1,7 @@
 const allowedRoles = {
   admin: ["admin"],
-  user: ["user"],
-  adminAndUser: ["admin", "user"],
+  user: ["employee"],
+  adminAndUser: ["admin", "employee"],
 };
 
 module.exports = allowedRoles;
