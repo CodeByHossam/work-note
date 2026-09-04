@@ -47,21 +47,13 @@ const seedData = async () => {
     console.log(`${users.length} users created`);
 
     // Get users
-    const admin = users.find(
-      (user) => user.email === "admin@example.com"
-    );
+    const admin = users.find((user) => user.email === "admin@example.com");
 
-    const ahmed = users.find(
-      (user) => user.email === "ahmed@example.com"
-    );
+    const ahmed = users.find((user) => user.email === "ahmed@example.com");
 
-    const mohamed = users.find(
-      (user) => user.email === "mohamed@example.com"
-    );
+    const mohamed = users.find((user) => user.email === "mohamed@example.com");
 
-    const sara = users.find(
-      (user) => user.email === "sara@example.com"
-    );
+    const sara = users.find((user) => user.email === "sara@example.com");
 
     // Create notes
     const notes = await Note.create([
@@ -96,8 +88,7 @@ const seedData = async () => {
 
       {
         title: "Check pending tasks",
-        description:
-          "Review all pending tasks and update their status.",
+        description: "Review all pending tasks and update their status.",
         creator: ahmed._id,
         assignedTo: sara._id,
         state: "pending",
@@ -106,8 +97,7 @@ const seedData = async () => {
 
       {
         title: "Prepare meeting agenda",
-        description:
-          "Prepare the agenda for the upcoming project meeting.",
+        description: "Prepare the agenda for the upcoming project meeting.",
         creator: mohamed._id,
         assignedTo: sara._id,
         state: "started",
@@ -116,8 +106,7 @@ const seedData = async () => {
 
       {
         title: "System administration",
-        description:
-          "Review system users and permissions.",
+        description: "Review system users and permissions.",
         creator: admin._id,
         assignedTo: admin._id,
         state: "completed",
@@ -136,3 +125,5 @@ const seedData = async () => {
 };
 
 seedData();
+// to use this seeder type node seeder.js
+//  in the terminal

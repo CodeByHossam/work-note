@@ -1,7 +1,7 @@
 const allowedRoles = {
-  admin: ["admin", "user"],
+  admin: ["admin"],
   user: ["user"],
+  adminAndUser: ["admin", "user"],
 };
- 
+
 module.exports = allowedRoles;
-// this is a middleware to check if the user has the right role to access a certain route

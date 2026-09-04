@@ -1,11 +1,7 @@
-
 const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 
-// @description    Get all users
-// @route          GET /api/v1/users
-// @access         Private/Admin
-
+// get all users
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
 
@@ -16,11 +12,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
   });
 });
 
-
-// @description    Get single user
-// @route          GET /api/v1/users/:id
-// @access         Private/Admin
-
+// get single user
 const getSingleUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
@@ -38,11 +30,7 @@ const getSingleUser = asyncHandler(async (req, res) => {
   });
 });
 
-
-// @description    Create user
-// @route          POST /api/v1/users
-// @access         Private/Admin
-
+// create user
 const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -67,11 +55,7 @@ const createUser = asyncHandler(async (req, res) => {
   });
 });
 
-
-// @description    Update user
-// @route          PATCH /api/v1/users/:id
-// @access         Private/Admin
-
+// update user
 const updateUser = asyncHandler(async (req, res) => {
   const existingUser = await User.findById(req.params.id);
 
@@ -95,9 +79,9 @@ const updateUser = asyncHandler(async (req, res) => {
     req.params.id,
     updatedUserData,
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
-    }
+    },
   );
 
   res.status(200).json({
@@ -107,11 +91,7 @@ const updateUser = asyncHandler(async (req, res) => {
   });
 });
 
-
-// @description    Delete user
-// @route          DELETE /api/v1/users/:id
-// @access         Private/Admin
-
+// delete user
 const deleteUser = asyncHandler(async (req, res) => {
   const deletedUser = await User.findByIdAndDelete(req.params.id);
 
@@ -129,7 +109,6 @@ const deleteUser = asyncHandler(async (req, res) => {
   });
 });
 
-
 module.exports = {
   getAllUsers,
   getSingleUser,
@@ -137,4 +116,3 @@ module.exports = {
   updateUser,
   deleteUser,
 };
-

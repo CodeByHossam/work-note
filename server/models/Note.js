@@ -38,15 +38,6 @@ const NoteSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// method to check if the user is the owner of the note
-NoteSchema.methods.isOwner = function (userId) {
-  return this.creator.toString() === userId.toString();
-};
-
-NoteSchema.methods.isAssignedTo = function (userId) {
-  return this.assignedTo.toString() === userId.toString();
-};
-
 // method to generate a report of the note
 NoteSchema.methods.noteReport = function () {
   return {
@@ -88,8 +79,16 @@ Last Updated: ${this.updatedAt}
 `,
   };
 };
+// method to check if the user is the owner of the note
+NoteSchema.methods.isOwner = function (userId) {
+  return this.creator.toString() === userId.toString();
+};
 
-// Notes created by the user
+NoteSchema.methods.isAssignedTo = function (userId) {
+  return this.assignedTo.toString() === userId.toString();
+};
+
+// All Notes created by the user (statics)
 NoteSchema.statics.getCreatedByUser = function (userId) {
   return this.find({ creator: userId });
 };

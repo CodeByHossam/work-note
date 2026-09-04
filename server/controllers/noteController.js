@@ -1,14 +1,13 @@
 const Note = require("../models/Note");
-
 const asyncHandler = require("express-async-handler");
 
-// @description: Get all notes accessible by the current user
-// @route: GET /api/notes
-// @access: Private
-
+//  get all notes
 const getAllNotes = asyncHandler(async (req, res) => {
-  // the user role is required not only the user id
-  const notes = await Note.getAccessibleByUser(req.user);
+  // req.user contains _id and role
+  const notes = await Note.getAccessibleByUser(req.user)
+    .populate("assignedTo", "name")
+    .populate("creator", "name");
+
   res.status(200).json({
     isSuccess: true,
     data: notes,
@@ -16,12 +15,11 @@ const getAllNotes = asyncHandler(async (req, res) => {
   });
 });
 
-// @description: Get note by ID
-// @route: GET /api/notes/:id
-// @access: Private
-
+// get single note
 const getNoteById = asyncHandler(async (req, res) => {
-  const note = await Note.findById(req.params.id);
+  const note = await Note.findById(req.params.id)
+    .populate("assignedTo", "name")
+    .populate("creator", "name");
 
   if (!note) {
     return res.status(404).json({
@@ -30,8 +28,12 @@ const getNoteById = asyncHandler(async (req, res) => {
     });
   }
 
-  // User must be the creator or assigned user
-  if (!note.isOwner(req.user._id) && !note.isAssignedTo(req.user._id)) {
+  // User must be the creator, assigned user, or admin
+  if (
+    !note.isOwner(req.user._id) &&
+    !note.isAssignedTo(req.user._id) &&
+    req.user.role !== "admin"
+  ) {
     return res.status(403).json({
       isSuccess: false,
       message: "You are not authorized to access this note",
@@ -45,19 +47,23 @@ const getNoteById = asyncHandler(async (req, res) => {
   });
 });
 
-// @description: Create new note
-// @route: POST /api/notes
-// @access: Private
-
+// create new note
 const createNote = asyncHandler(async (req, res) => {
   const { title, description, assignedTo } = req.body;
 
+  // Create the document
   const note = await Note.create({
     title,
     description,
     assignedTo,
     creator: req.user._id,
   });
+
+  // Populate the created document
+  await note.populate([
+    { path: "assignedTo", select: "name" },
+    { path: "creator", select: "name" },
+  ]);
 
   res.status(201).json({
     isSuccess: true,
@@ -66,11 +72,9 @@ const createNote = asyncHandler(async (req, res) => {
   });
 });
 
-// @description: Update note
-// @route: PUT /api/notes/:id
-// @access: Private
-
+// update note
 const updateNote = asyncHandler(async (req, res) => {
+  // 1. Get the note
   const note = await Note.findById(req.params.id);
 
   if (!note) {
@@ -80,8 +84,9 @@ const updateNote = asyncHandler(async (req, res) => {
     });
   }
 
-  // Only the creator can update the note
-  if (!note.isOwner(req.user._id)) {
+  // 2. Authorization
+  // Only the creator or admin can update the note
+  if (!note.isOwner(req.user._id) && req.user.role !== "admin") {
     return res.status(403).json({
       isSuccess: false,
       message: "You are not authorized to update this note",
@@ -90,6 +95,7 @@ const updateNote = asyncHandler(async (req, res) => {
 
   const { title, description, assignedTo, state, completed } = req.body;
 
+  // 3. Update the note
   const updatedNote = await Note.findByIdAndUpdate(
     req.params.id,
     {
@@ -103,8 +109,12 @@ const updateNote = asyncHandler(async (req, res) => {
       new: true,
       runValidators: true,
     },
-  );
+  )
+    //opulate only after update because the user may changed them in the request
+    .populate("assignedTo", "name")
+    .populate("creator", "name");
 
+  // 4. Send response
   res.status(200).json({
     isSuccess: true,
     data: updatedNote,
@@ -112,12 +122,15 @@ const updateNote = asyncHandler(async (req, res) => {
   });
 });
 
-// @description: Delete note
-// @route: DELETE /api/notes/:id
-// @access: Private
+// delete note
 
 const deleteNote = asyncHandler(async (req, res) => {
-  const note = await Note.findById(req.params.id);
+  // Get the document
+  //populate the document before deleting becuse it will be stored in javascript only not in database
+  const note = await Note.findById(req.params.id).populate([
+    { path: "creator", select: "name" },
+    { path: "assignedTo", select: "name" },
+  ]);
 
   if (!note) {
     return res.status(404).json({
@@ -126,26 +139,59 @@ const deleteNote = asyncHandler(async (req, res) => {
     });
   }
 
-  // Only the creator can delete the note
-  if (!note.isOwner(req.user._id)) {
+  // Only the creator or admin can delete the note
+  if (!note.isOwner(req.user._id) && req.user.role !== "admin") {
     return res.status(403).json({
       isSuccess: false,
       message: "You are not authorized to delete this note",
     });
   }
 
-  await Note.findByIdAndDelete(req.params.id);
+  await note.deleteOne();
 
   res.status(200).json({
     isSuccess: true,
+    data: note,
     message: "Note deleted successfully",
   });
 });
 
+// get all notes assined to a user
+// Get notes assigned to a user
+const getAssignedNotes = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.body.userId;
+
+    if (
+      userId.toString() !== req.user._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({
+        isSuccess: false,
+        message: "You are not authorized to access this resource",
+      });
+    }
+
+    const notes = await Note.getAssignedToUser(userId);
+
+    res.status(200).json({
+      isSuccess: true,
+      count: notes.length,
+      data: notes,
+      message: "All user's notes have been retrieved successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      isSuccess: false,
+      message: error.message,
+    });
+  }
+});
 module.exports = {
   getAllNotes,
   getNoteById,
   createNote,
   updateNote,
   deleteNote,
+  getAssignedNotes,
 };

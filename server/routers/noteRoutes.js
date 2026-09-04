@@ -13,29 +13,57 @@ const {
   createNote,
   updateNote,
   deleteNote,
+  getAssignedNotes,
 } = require("../controllers/noteController");
 
 const router = express.Router();
+// DONE : TEST ALL ROUTES IN POSTMAN
 
-// GET all notes
-router.get("/", auth, getAllNotes);
+// @route : GET /api/notes
+// @describe : Get all notes
+// @access : Private
+router.get("/", auth, authorize(allowedRoles.adminAndUser), getAllNotes);
 
-// GET one note
-router.get("/:id", getNoteById);
+// @route : GET /api/notes/:id
+// @describe : Get note by id
+// @access : Private
+router.get("/:id", auth, authorize(allowedRoles.adminAndUser), getNoteById);
 
-// CREATE note
+// @route : POST /api/notes
+// @describe : Create note
+// @access : Private
 router.post(
   "/",
   auth,
-  authorize(allowedRoles.admin),
+  authorize(allowedRoles.adminAndUser),
   validateCreateNote,
   createNote,
 );
 
-// UPDATE note
-router.patch("/:id", validateUpdateNote, updateNote);
+// @route : PATCH /api/notes/:id
+// @describe : Update note
+// @access : Private
+router.patch(
+  "/:id",
+  auth,
+  authorize(allowedRoles.adminAndUser),
+  validateUpdateNote,
+  updateNote,
+);
 
-// DELETE note
-router.delete("/:id", deleteNote);
+// @route : DELETE /api/notes/:id
+// @describe : Delete note
+// @access : Private
+router.delete("/:id", auth, authorize(allowedRoles.adminAndUser), deleteNote);
+
+// @route : GET /api/notes/assinedto/:id
+// @describe : Get all notes assined to a user
+// @access : Private
+router.get(
+  "/assined/to",
+  auth,
+  authorize(allowedRoles.adminAndUser),
+  getAssignedNotes,
+);
 
 module.exports = router;
