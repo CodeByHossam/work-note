@@ -1,34 +1,91 @@
 import { useState } from 'react'
 import { Save, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import '../../../styles/notes/NoteForm.css'
 
+import {
+  useCreateNoteMutation,
+  useUpdateNoteMutation,
+  useGetNoteQuery,
+} from '../noteApi'
+import { useGetUserDropdownQuery } from '../../users/userApi'
+
 export default function NoteForm() {
+  const { id } = useParams()
+  const isEditing = Boolean(id)
+
+  const {
+    data: noteData,
+    isLoading: isNoteLoading,
+  } = useGetNoteQuery(id, { skip: !isEditing })
+
+  const {
+    data: userData,
+    isLoading: isUsersLoading,
+  } = useGetUserDropdownQuery()
+
+  const note = noteData?.data
+  const users = userData?.data || []
+
+  if (isNoteLoading || isUsersLoading) {
+    return (
+      <form className="note-form">
+        <p>Loading...</p>
+      </form>
+    )
+  }
+
+  return (
+    <NoteFormFields
+      key={isEditing ? note._id : 'new'}
+      initialNote={note}
+      users={users}
+      isEditing={isEditing}
+    />
+  )
+}
+
+function NoteFormFields({ initialNote, users, isEditing }) {
   const navigate = useNavigate()
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [manager, setManager] = useState('')
-  const [assignedTo, setAssignedTo] = useState('')
-  const [status, setStatus] = useState('pending')
+  const [createNote, { isLoading: isCreating }] = useCreateNoteMutation()
+  const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation()
 
-  const handleSubmit = (e) => {
+  const [title, setTitle] = useState(initialNote?.title || '')
+  const [description, setDescription] = useState(initialNote?.description || '')
+  const [assignedTo, setAssignedTo] = useState(initialNote?.assignedTo?._id || '')
+  const [state, setState] = useState(initialNote?.state || 'pending')
+  const [error, setError] = useState(null)
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const note = {
-      title,
-      content,
-      manager,
-      assignedTo,
-      status,
-      date: new Date().toLocaleDateString(),
+    if (!assignedTo) {
+      setError('Please assign the task to an employee.')
+      return
     }
 
-    console.log('New task:', note)
+    try {
+      if (isEditing) {
+        await updateNote({
+          id: initialNote._id,
+          title,
+          description,
+          assignedTo,
+          state,
+        }).unwrap()
+      } else {
+        await createNote({
+          title,
+          description,
+          assignedTo,
+        }).unwrap()
+      }
 
-    // Later this will be replaced with your API call
-
-    navigate('/notes')
+      navigate('/notes')
+    } catch (err) {
+      setError(err?.data?.message || 'Failed to save the task.')
+    }
   }
 
   return (
@@ -36,10 +93,18 @@ export default function NoteForm() {
 
       <div className="form-header">
         <div>
-          <h1>Create Task</h1>
-          <p>Assign a new task to an employee.</p>
+          <h1>{isEditing ? 'Update Task' : 'Create Task'}</h1>
+          <p>
+            {isEditing
+              ? 'Update the task details.'
+              : 'Assign a new task to an employee.'}
+          </p>
         </div>
       </div>
+
+      {error && (
+        <p className="form-error">{error}</p>
+      )}
 
       <div className="form-group">
         <label htmlFor="title">Task Title</label>
@@ -55,60 +120,51 @@ export default function NoteForm() {
       </div>
 
       <div className="form-group">
-        <label htmlFor="content">Description</label>
+        <label htmlFor="description">Description</label>
 
         <textarea
-          id="content"
+          id="description"
           placeholder="Describe the task..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           rows="6"
           required
         />
       </div>
 
-      <div className="form-row">
-
-        <div className="form-group">
-          <label htmlFor="manager">Manager</label>
-
-          <input
-            id="manager"
-            type="text"
-            placeholder="Manager name"
-            value={manager}
-            onChange={(e) => setManager(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="assignedTo">Assign To</label>
-
-          <input
-            id="assignedTo"
-            type="text"
-            placeholder="Employee name"
-            value={assignedTo}
-            onChange={(e) => setAssignedTo(e.target.value)}
-            required
-          />
-        </div>
-
-      </div>
-
       <div className="form-group">
-        <label htmlFor="status">Status</label>
+        <label htmlFor="assignedTo">Assign To</label>
 
         <select
-          id="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          id="assignedTo"
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+          required
         >
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
+          <option value="">Select an employee</option>
+          {users.map((user) => (
+            <option key={user._id} value={user._id}>
+              {user.name}
+            </option>
+          ))}
         </select>
       </div>
+
+      {isEditing && (
+        <div className="form-group">
+          <label htmlFor="state">Status</label>
+
+          <select
+            id="state"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+          >
+            <option value="pending">Pending</option>
+            <option value="started">Started</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      )}
 
       <div className="form-actions">
 
@@ -121,9 +177,17 @@ export default function NoteForm() {
           Cancel
         </button>
 
-        <button type="submit" className="save-btn">
+        <button
+          type="submit"
+          className="save-btn"
+          disabled={isCreating || isUpdating}
+        >
           <Save size={18} />
-          Create Task
+          {isCreating || isUpdating
+            ? 'Saving...'
+            : isEditing
+              ? 'Update Task'
+              : 'Create Task'}
         </button>
 
       </div>

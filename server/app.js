@@ -3,6 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 3500;
 const dotenv = require("dotenv");
 const cors = require("cors");
+const corsOptions=require('./config/corsOptions')
 const connectDB = require("./config/db");
 dotenv.config();
 //middlewares imports
@@ -19,7 +20,7 @@ const authRoutes = require("./routers/authRoutes");
 // Global middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, "public")));
 
 // route use

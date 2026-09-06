@@ -1,19 +1,18 @@
-import {api} from '../../api/api';
+import api from '../../services/api';
 
 const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getuser: builder.query({
-      query: (name) => `user/${name}`,
+      query: (id) => `user/${id}`,
     }),
 
-    getuserList: builder.query({
-      query: ({ limit, offset }) =>
-        `user?limit=${limit}&offset=${offset}`,
+    getUserDropdown: builder.query({
+      query: () => `user/dropdown`,
     }),
   }),
 });
 
 export const {
   useGetUserQuery,
-  useGetUserListQuery,
+  useGetUserDropdownQuery,
 } = userApi;

@@ -28,6 +28,11 @@ export const router = createBrowserRouter([
             path: 'new',
             element: <NoteForm />,
           },
+
+          {
+            path: 'edit/:id',
+            element: <NoteForm />,
+          },
         ],
       },
 

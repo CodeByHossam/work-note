@@ -60,6 +60,11 @@
   color: #b45309;
 }
 
+.status-started {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
 /* Actions */
 
 .note-actions {

@@ -4,13 +4,24 @@ const asyncHandler = require("express-async-handler");
 //  get all notes
 const getAllNotes = asyncHandler(async (req, res) => {
   // req.user contains _id and role
-  const notes = await Note.getAccessibleByUser(req.user)
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = parseInt(req.query.offset, 10) || 0;
+
+  const query = Note.getAccessibleByUser(req.user);
+
+  const total = await query.clone().countDocuments();
+
+  const notes = await query
+    .sort({ createdAt: -1 })
+    .skip(offset)
+    .limit(limit)
     .populate("assignedTo", "name")
     .populate("creator", "name");
 
   res.status(200).json({
     isSuccess: true,
     data: notes,
+    total,
     message: "Notes retrieved successfully",
   });
 });

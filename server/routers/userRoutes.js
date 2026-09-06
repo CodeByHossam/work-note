@@ -18,12 +18,23 @@ const {
   updateUser,
   deleteUser,
   getAllUsers,
+  getUsersDropdown,
 } = require("../controllers/userControllers");
 
 // @route   GET api/users
 // @desc    Get all users
 // @access  Private/Admin
 router.get("/", auth, authorize(allowedRoles.admin), getAllUsers);
+
+// @route   GET api/users/dropdown
+// @desc    Get users for assignment dropdown
+// @access  Private/Admin + User
+router.get(
+  "/dropdown",
+  auth,
+  authorize(allowedRoles.adminAndUser),
+  getUsersDropdown,
+);
 
 // @route   GET api/users/:id
 // @desc    Get single user

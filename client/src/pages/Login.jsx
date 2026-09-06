@@ -20,7 +20,7 @@ export default function Login() {
     }
   }, [errMessage]);
 
-  const [loginUser, { isLoading, error }] = useLoginMutation();
+  const [loginUser, { isLoading }] = useLoginMutation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

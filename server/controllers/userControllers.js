@@ -12,6 +12,17 @@ const getAllUsers = asyncHandler(async (req, res) => {
   });
 });
 
+// get minimal users for assignment dropdown
+const getUsersDropdown = asyncHandler(async (req, res) => {
+  const users = await User.find().select("_id name role");
+
+  res.status(200).json({
+    isSuccess: true,
+    data: users,
+    message: "Users retrieved successfully",
+  });
+});
+
 // get single user
 const getSingleUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
@@ -111,6 +122,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  getUsersDropdown,
   getSingleUser,
   createUser,
   updateUser,
