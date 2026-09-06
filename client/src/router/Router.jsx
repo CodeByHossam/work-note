@@ -5,6 +5,7 @@ import Home from '../pages/Home'
 import Login from '../pages/Login'
 import Notes from '../pages/Notes'
 import NoteForm from '../features/notes/components/NoteForm'
+import Users from '../pages/Users'
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,11 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login />,
+      },
+
+      {
+        path: 'users',
+        element: <Users />,
       },
     ],
   },

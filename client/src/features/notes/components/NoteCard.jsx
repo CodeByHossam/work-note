@@ -1,25 +1,12 @@
 import { Pencil, Trash2, User, UserCheck, CalendarDays } from 'lucide-react'
+import { formatDate } from '../../../utils/formatDate'
+import { STATE_LABELS, STATE_CLASSES } from '../../../utils/noteState'
 import '../../../styles/notes/NoteCard.css'
-
-const STATE_LABELS = {
-  pending: 'Pending',
-  started: 'Started',
-  completed: 'Completed',
-}
-
-const STATE_CLASSES = {
-  pending: 'status-pending',
-  started: 'status-started',
-  completed: 'status-completed',
-}
 
 export default function NoteCard({ note, onEdit, onDelete }) {
   const state = note.state || 'pending'
   const stateLabel = STATE_LABELS[state] || state
-
-  const formattedDate = note.createdAt
-    ? new Date(note.createdAt).toLocaleDateString()
-    : '-'
+  const formattedDate = formatDate(note.createdAt)
 
   return (
     <article className="note-card">

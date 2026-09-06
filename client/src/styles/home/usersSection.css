@@ -1,0 +1,88 @@
+.users-section .section-head p {
+  margin: 4px 0 0;
+
+  color: #6b7280;
+
+  font-size: 0.85rem;
+}
+
+.add-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 16px;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: #4ade80;
+  color: #111827;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.add-user-btn:hover {
+  background: #22c55e;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ghost-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 16px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #374151;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.ghost-btn:hover {
+  border-color: #4ade80;
+  color: #111827;
+  background: #f0fdf4;
+}
+
+.users-empty {
+  grid-column: 1 / -1;
+
+  padding: 22px;
+
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+
+  background: #ffffff;
+  color: #6b7280;
+
+  text-align: center;
+}
+
+.users-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+}
