@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, Search, Inbox } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import NoteCard from "./NoteCard";
@@ -12,6 +12,7 @@ import {
 export default function NoteList() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
   const limit = 5;
   const offset = (page - 1) * limit;
 
@@ -29,7 +30,16 @@ export default function NoteList() {
 
   const notes = AllNotes?.data || [];
   const total = AllNotes?.total ?? notes.length;
-  const hasNext = page * limit < total;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const hasNext = page < totalPages;
+
+  const filtered = query
+    ? notes.filter((note) =>
+        `${note.title} ${note.description || ""}`
+          .toLowerCase()
+          .includes(query.toLowerCase())
+      )
+    : notes;
 
   const handleEdit = (note) => {
     navigate(`/notes/edit/${note._id}`);
@@ -52,7 +62,6 @@ export default function NoteList() {
     navigate("/notes/new");
   };
 
-  // Handle pagination
   const handleNextPage = () => {
     if (hasNext) setPage(page + 1);
   };
@@ -63,31 +72,65 @@ export default function NoteList() {
 
   return (
     <section className="notes-section">
-      {/* Loading, Error, and Data display */}
-      <div>
-        {isLoading && <div>Loading notes...</div>}
-        {isError && <div>Error: {error?.data?.message || error?.message || "Failed to fetch notes"}</div>}
-        {!isLoading && !isError && AllNotes && (
-          <div className="notes-list-header">
-            <div>
-              <h2>Tasks</h2>
-              <p>Tasks assigned to your team</p>
-            </div>
 
-            <button className="add-task-btn" onClick={handleAddTask}>
-              <Plus size={18} />
-              Add Task
-            </button>
-          </div>
-        )}
+      {/* Header */}
+      <div className="notes-list-header">
+        <div>
+          <h2>Tasks</h2>
+          <p>Tasks assigned to your team</p>
+        </div>
+
+        <button className="add-task-btn" onClick={handleAddTask}>
+          <Plus size={18} />
+          Add Task
+        </button>
       </div>
 
-      {/* Notes Grid */}
+      {/* Toolbar */}
+      {!isLoading && !isError && (
+        <div className="notes-toolbar">
+          <div className="search-box">
+            <Search size={16} />
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+
+          <span className="task-count">
+            Showing <strong>{filtered.length}</strong> of {total} tasks
+          </span>
+        </div>
+      )}
+
+      {/* Loading skeletons */}
+      {isLoading && (
+        <div className="notes-grid">
+          {[1, 2, 3].map((n) => (
+            <div className="note-card skeleton-card" key={n}>
+              <div className="skeleton skeleton-title" />
+              <div className="skeleton skeleton-line" />
+              <div className="skeleton skeleton-line short" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Error */}
+      {isError && (
+        <div className="notes-error">
+          {error?.data?.message || error?.message || "Failed to fetch notes"}
+        </div>
+      )}
+
+      {/* Data */}
       {!isLoading && !isError && (
         <>
           <div className="notes-grid">
-            {notes.length > 0 ? (
-              notes.map((note) => (
+            {filtered.length > 0 ? (
+              filtered.map((note) => (
                 <NoteCard
                   key={note._id}
                   note={note}
@@ -96,26 +139,31 @@ export default function NoteList() {
                 />
               ))
             ) : (
-              <p>No notes available</p>
+              <div className="notes-empty">
+                <Inbox size={36} />
+                <p>{query ? "No tasks match your search" : "No tasks yet"}</p>
+                <button className="add-task-btn" onClick={handleAddTask}>
+                  <Plus size={18} />
+                  Create your first task
+                </button>
+              </div>
             )}
           </div>
 
           {/* Pagination Controls */}
-          <div className="pagination-controls">
-            <button
-              onClick={handlePrevPage}
-              disabled={page === 1}
-            >
-              Previous
-            </button>
-            <span>Page {page}</span>
-            <button
-              onClick={handleNextPage}
-              disabled={!hasNext}
-            >
-              Next
-            </button>
-          </div>
+          {total > limit && (
+            <div className="pagination-controls">
+              <button onClick={handlePrevPage} disabled={page === 1}>
+                Previous
+              </button>
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <button onClick={handleNextPage} disabled={!hasNext}>
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
     </section>

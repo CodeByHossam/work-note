@@ -1,13 +1,36 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { StickyNote, Menu, X, Home, FileText, LogIn, UserPlus } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import {
+  StickyNote,
+  Menu,
+  X,
+  Home,
+  FileText,
+  LogIn,
+  LogOut,
+  User,
+  UserPlus,
+} from 'lucide-react'
 
 import '../styles/header.css'
+import { logout } from '../store/authSlice'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const { name, token } = useSelector((state) => state.auth)
+  const isLoggedIn = Boolean(token)
 
   const closeMenu = () => setMenuOpen(false)
+
+  const handleLogout = () => {
+    dispatch(logout())
+    closeMenu()
+    navigate('/')
+  }
 
   return (
     <header className="header">
@@ -35,19 +58,35 @@ export default function Header() {
             <span>My Notes</span>
           </Link>
 
-          <Link to="/login" onClick={closeMenu}>
-            <LogIn size={18} />
-            <span>Login</span>
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <span className="user-chip">
+                <User size={18} />
+                <span>{name}</span>
+              </span>
 
-          <Link
-            to="/register"
-            className="signup-btn"
-            onClick={closeMenu}
-          >
-            <UserPlus size={18} />
-            <span>Get Started</span>
-          </Link>
+              <button type="button" className="logout-btn" onClick={handleLogout}>
+                <LogOut size={18} />
+                <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={closeMenu}>
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
+
+              <Link
+                to="/register"
+                className="signup-btn"
+                onClick={closeMenu}
+              >
+                <UserPlus size={18} />
+                <span>Get Started</span>
+              </Link>
+            </>
+          )}
 
         </nav>
 

@@ -6,6 +6,11 @@ const userApi = api.injectEndpoints({
       query: (id) => `user/${id}`,
     }),
 
+    getAllUsers: builder.query({
+      query: () => `user`,
+      providesTags: ['User'],
+    }),
+
     getUserDropdown: builder.query({
       query: () => `user/dropdown`,
     }),
@@ -14,5 +19,6 @@ const userApi = api.injectEndpoints({
 
 export const {
   useGetUserQuery,
+  useGetAllUsersQuery,
   useGetUserDropdownQuery,
 } = userApi;

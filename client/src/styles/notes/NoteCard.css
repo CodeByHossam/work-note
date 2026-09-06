@@ -1,5 +1,7 @@
 .note-card {
-  width: 80%;
+  width: 100%;
+  box-sizing: border-box;
+
   padding: 22px;
 
   background: #ffffff;
@@ -114,6 +116,11 @@
 
   font-size: 0.95rem;
   line-height: 1.6;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Information */
