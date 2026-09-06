@@ -13,5 +13,6 @@
 .main-container {
   width: min(1200px, 100%);
   margin: 0 auto;
-  padding: 40px 24px;
+  min-height: 80vh;
+ 
 }
